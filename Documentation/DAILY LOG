@@ -1,0 +1,66 @@
+DAILY LOG-13/12/16
+1. Visited https://pcjericks.github.io/py-gdalogr-cookbook/vector_layers.html to learn a few basic commands in ogr
+
+2. Tried debugging Rahul's code, added a few comments(for my understanding), added 1-2 extra lines of code, but the bugs remained
+
+3. Read up on GML a bit on Wikipedia.
+
+4.	Pinged Rahul about problems in code.
+
+
+DAILY LOG-14/12/16
+1. Learning ogr.
+
+2. Started trying simple ogr commands on shape files.
+
+3.Wrote ogr codes for layer duplication, centroid generation, feature count and feature identification.
+
+4. Meeting with sir
+
+DAILY LOG-15/12/16
+1. More debugging effort and code understanding thoroughly.
+
+
+DAILY LOG-16/12/16
+1. Rahul sent debugged code.
+
+2. Ran debugged code and tried implementing case 1 code.
+
+3. Tried running Rahul's code for single room files, but it didn't run, because the layer file didnot generate properly.
+
+4. Debugging problems with shape files, to find why Rahul's code was not working.
+
+5. Meeting with Aakash, task shifted to GML.
+
+DAILY LOG-18/12/16
+1. Learning basics of GML.
+
+DAILY LOG-19/12/16
+1. Converting SHP to GML.
+
+2. Convertng DXF to GML.
+
+
+DAILY LOG-20/12/16
+1. Working with others-Night out.
+
+DAILY LOG-21/12/16
+1. Working with others on second night out.
+2. Created a file with points with mock attributes.
+
+DAILY-LOG-22/12/16
+1. Wrote code to join points created.
+2. Spent evening in meeting with sir.
+
+DAILY-LOG-23/12/16
+1. Tested GML adapting for larger drawings.
+2. Tried polygon generation for simple line files.
+3. Night out, tried finding a way to include doors and windows in the algorithm.
+
+DAILY-LOG 24/12/16
+1. Centroid code works on line strings, but need algorithm for polygon generation, so googled it.
+
+DAILY LOG-26/12/16
+1. Was spent trying to find papers on polygon generation from lines.
+
+

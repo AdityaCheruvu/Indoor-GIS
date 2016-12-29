@@ -1,0 +1,18 @@
+
+INPUT: A 2-D cleaned representation of the data
+
+OUTPUT: Furthering the cleaning of the rough data, extrapolating the 2-D data to a network. 
+
+SKILLS: Working with QGIS, using GDAL/OGR modules of python
+
+
+IDEA: The team is required to work majorly on data extraction. The data once extracted from its rough format and presented in the desired structure can easily have algorithms for the fastest possible evactuation implemented on it. We are trying to generalize this process as much as possible to make sure our code can work on a wide range of buildings, with just the architectural plan available.Very briefly:
+Srishti mam and Veronica deal with building the libraries for the various objects that the data may contain, so that approprite tags can be associated with them.
+Aakash and Rachna extract data from its rough representation, and represent them with the right tags and labels, after identifying each component(and any text that may be associated with it) seperately.
+I will be working on a shape file(where polygons represent closed spaces instead of enclosing walls) and find its centroid, representing it as a node(with some data attatched with it- such as weight). In this manner, I am expected to create a netwprk of points from given shape file.
+
+ROLE: I am expected to extend Rahul Rai's work and join the lines created by him to form closed polygons. I will then find the centroid of such polygons, and represent them with points. The next step is to connect these points to exit points (such as doors) and thus create a network(for every layer).
+
+
+
+constructing polygons for closed spaces, determining their centroids, and connecting the centroid to the exit points say

@@ -1,0 +1,18 @@
+MOM(Minutes of Meeting)-3
+
+
+*VENUE: Lab for Spatial Informatics
+*DATE: 16th December, 2016.
+*TIME: 11:00 PM
+*MEMBERS PRESENT: Srishti Srivastav, Aaksash Mittal, Soumya Vadlamannati
+
+
+ACTIVITIES
+*Explained Rahul's code to Aakash, for implementing with dxf data.
+*Decided to shift my work to gml conversion, since shp file generation was not consistent(not every file had an ID layer and hence Rahul's code worked only on 1 file, giving errors for the rest).
+*Disucussed specifics of the algortithm being implemented by Aakash.
+
+
+
+
+-Soumya

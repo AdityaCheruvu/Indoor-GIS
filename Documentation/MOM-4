@@ -1,0 +1,22 @@
+MOM(Minutes of Meeting)-4
+
+
+*VENUE: Lab for Spatial Informatics
+*DATE: 22nd December, 2016.
+*TIME: 2:0) PM- 5:00 PM
+*MEMBERS PRESENT: Srishti Srivastav, Aaksash Mittal, Soumya Vadlamannati, Konigari Rachna, Prof.Rajan
+
+
+ACTIVITIES
+*In detail discussion of work done so far, with each member.
+*With regard to my module-
+1. Anticlockwise- clockwise algorithm was not to be used for polygon generation.
+2. Points and line generation was to be dropped.
+3. Open space detection had to be performed.(Later task was shifted to Aakash)
+4. Open spaces needed center lines generated.
+5. The center lines were to be joined to centroids through doors, to form networks(Task reserved for the next stage).
+
+
+
+
+-Soumya

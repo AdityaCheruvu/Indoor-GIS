@@ -1,0 +1,7 @@
+ISSUES
+
+1.Tried running Rahul's code(merge_line.py), but it shows errors. Have tried debugging them, but I cannot resolve the issue. His recommended guide https://pcjericks.github.io/py-gdalogr-cookbook/vector_layers.html has the exact same case, and I can see no difference in the way between his code and theirs.
+
+2.Algorithm to improve lines generated to proper closed polygons.
+
+3.I know how to tweak Rahul's code to solve the problem for few cases(as discussed with Srishti), but that will not work for corners and secondly, Rahul's code will have to work for that.
