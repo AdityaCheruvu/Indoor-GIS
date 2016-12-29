@@ -1,0 +1,5 @@
+1. Install ogr2ogr python module, you can check whether installation has worked by running the following command:
+	ogr2ogr --version
+2. Make sure the dxf, shp file you want to convert is present in the same folder.
+3. Run ogr2ogr -f GML <gml file name> <dxf/shp file name>
+4. Open GML file in QGIS to verify that the shape and the attributes have been replicated.
