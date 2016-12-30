@@ -2,7 +2,7 @@ from osgeo import ogr
 import os
 
 # Get the input Layer
-inShapefile = "center_line_/1roomr.shp"
+inShapefile = "1roomr.shp"
 inDriver = ogr.GetDriverByName("ESRI Shapefile")
 inDataSource = inDriver.Open(inShapefile, 0)
 inLayer = inDataSource.GetLayer()
@@ -19,16 +19,24 @@ if os.path.exists(outShapefile):
 outDataSource = outDriver.CreateDataSource(outShapefile)
 outLayer = outDataSource.CreateLayer("centroid", geom_type=ogr.wkbPoint)
 
+
 # Add input Layer Fields to the output Layer
 inLayerDefn = inLayer.GetLayerDefn()
 for i in range(0, inLayerDefn.GetFieldCount()):
     fieldDefn = inLayerDefn.GetFieldDefn(i)
     outLayer.CreateField(fieldDefn)
-
+idField = ogr.FieldDefn("Type", ogr.OFTString)
+outLayer.CreateField(idField)
+idField = ogr.FieldDefn("Geometry", ogr.OFTString)
+outLayer.CreateField(idField)
+idField = ogr.FieldDefn("Capacity", ogr.OFTInteger)
+outLayer.CreateField(idField)
+idField = ogr.FieldDefn("Impedence", ogr.OFTReal)
+outLayer.CreateField(idField)
+idField = ogr.FieldDefn("Distances", ogr.OFTInteger)
+outLayer.CreateField(idField)
 # Get the output Layer's Feature Definition
 outLayerDefn = outLayer.GetLayerDefn()
-idField = ogr.FieldDefn("Type", String)
-outLayer.CreateField(idField)
 
 # Add features to the ouput Layer
 for i in range(0, inLayer.GetFeatureCount()):
@@ -36,13 +44,16 @@ for i in range(0, inLayer.GetFeatureCount()):
     inFeature = inLayer.GetFeature(i)
     # Create output Feature
     outFeature = ogr.Feature(outLayerDefn)
-    # Add field values from input Layer
-    for i in range(0, outLayerDefn.GetFieldCount()):
-        outFeature.SetField(outLayerDefn.GetFieldDefn(i).GetNameRef(), inFeature.GetField(i))
     # Set geometry as centroid
     geom = inFeature.GetGeometryRef()
     centroid = geom.Centroid()
+
     outFeature.SetGeometry(centroid)
+    outFeature.SetField("Type", "room-centroid")
+    outFeature.SetField("Geometry", "Polygon")
+    outFeature.SetField("Capacity", 10)
+    outFeature.SetField("Impedence", 0.34)
+    outFeature.SetField("Distances", 3)
     # Add new feature to output Layer
     outLayer.CreateFeature(outFeature)
 
