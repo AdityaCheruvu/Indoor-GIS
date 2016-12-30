@@ -27,7 +27,14 @@ for i in range(0, inLayerDefn.GetFieldCount()):
     outLayer.CreateField(fieldDefn)
 idField = ogr.FieldDefn("Type", ogr.OFTString)
 outLayer.CreateField(idField)
-
+idField = ogr.FieldDefn("Geometry", ogr.OFTString)
+outLayer.CreateField(idField)
+idField = ogr.FieldDefn("Capacity", ogr.OFTInteger)
+outLayer.CreateField(idField)
+idField = ogr.FieldDefn("Impedence", ogr.OFTReal)
+outLayer.CreateField(idField)
+idField = ogr.FieldDefn("Distances", ogr.OFTInteger)
+outLayer.CreateField(idField)
 # Get the output Layer's Feature Definition
 outLayerDefn = outLayer.GetLayerDefn()
 
@@ -43,6 +50,10 @@ for i in range(0, inLayer.GetFeatureCount()):
 
     outFeature.SetGeometry(centroid)
     outFeature.SetField("Type", "room-centroid")
+    outFeature.SetField("Geometry", "Polygon")
+    outFeature.SetField("Capacity", 10)
+    outFeature.SetField("Impedence", 0.34)
+    outFeature.SetField("Distances", 3)
     # Add new feature to output Layer
     outLayer.CreateFeature(outFeature)
 
