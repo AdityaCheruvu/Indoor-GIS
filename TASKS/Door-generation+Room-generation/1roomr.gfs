@@ -1,0 +1,30 @@
+<GMLFeatureClassList>
+  <GMLFeatureClass>
+    <Name>1roomr</Name>
+    <ElementPath>1roomr</ElementPath>
+    <DatasetSpecificInfo>
+      <FeatureCount>4</FeatureCount>
+      <ExtentXMin>31.23013</ExtentXMin>
+      <ExtentXMax>37.33677</ExtentXMax>
+      <ExtentYMin>40.50814</ExtentYMin>
+      <ExtentYMax>46.12607</ExtentYMax>
+    </DatasetSpecificInfo>
+    <PropertyDefn>
+      <Name>Layer</Name>
+      <ElementPath>Layer</ElementPath>
+      <Type>Integer</Type>
+    </PropertyDefn>
+    <PropertyDefn>
+      <Name>SubClasses</Name>
+      <ElementPath>SubClasses</ElementPath>
+      <Type>String</Type>
+      <Width>66</Width>
+    </PropertyDefn>
+    <PropertyDefn>
+      <Name>EntityHand</Name>
+      <ElementPath>EntityHand</ElementPath>
+      <Type>String</Type>
+      <Width>3</Width>
+    </PropertyDefn>
+  </GMLFeatureClass>
+</GMLFeatureClassList>
