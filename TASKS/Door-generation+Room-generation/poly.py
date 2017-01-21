@@ -18,7 +18,7 @@ def main():
     print inLayer.GetFeatureCount()
 
     # Create the output Layer
-    outShapefile = "polygon2.shp"
+    outShapefile = "multi-polygon.shp"
     outDriver = ogr.GetDriverByName("ESRI Shapefile")
 
     # Remove output shapefile if it already exists
@@ -48,9 +48,15 @@ def main():
     poly1 = ogr.Geometry(ogr.wkbPolygon)
 
     used=[]
-    count=0
+    used2 = []
+
     flag=0
+    #flag =0 neither i edge nor j have been detected, new polygon
+    #flag =1 a polygon with initial edge
+    #flag =2 the first edge has been used once
+    #flag =3 two edges have been used, donot draw the polygon
     for i in range(0,wall_layer.GetFeatureCount()):
+        count = 0
         wall_feat2 = wall_layer.GetFeature(i)
         wall_geom2 = wall_feat2.GetGeometryRef()
         flag=0
@@ -60,6 +66,11 @@ def main():
                 print "Done already"
                 flag=1
                 break
+        for x in used2:
+             if x == id2:
+                print "Done as a subset"
+                flag = 2
+                break
         if(flag == 1):
             continue
         print "starting a ring"
@@ -68,9 +79,17 @@ def main():
         for j in range(0,wall_layer.GetFeatureCount()):
             wall_feat = wall_layer.GetFeature(j)
             id =  wall_feat.GetFieldAsInteger("ID")
-            used.append(id)
+            used2.append(id)
             if(id == id2):
                 continue
+            if(flag == 2):
+                for x in used2:
+                    if x == id:
+                        print "This polygon has been detected before"
+                        flag=3
+                        break
+                if(flag == 3):
+                    break
             wall_geom = wall_feat.GetGeometryRef()
             type= wall_feat.GetFieldAsString("Type1")
             print type
@@ -85,15 +104,17 @@ def main():
                 print "line"
                 if (-0.01<(arr[0][0]-arr2[0][0])<0.01) or (-0.01<(arr[0][0] - arr2[1][0])<0.01) or (-0.01<(arr[1][0]-arr2[0][0])<0.01) or (-0.01<(arr[1][0]-arr2[1][0])<0.01):
                     print "yes"
-                    ring1.AddPoint(arr2[0][0],arr2[0][1])
+                    ring1.AddPoint(arr[0][0],arr[0][1])
+                    print ring1.ExportToWkt()
 
             print j,i
-        x=wall_layer.GetFeature(i)
-        y=x.GetGeometryRef()
-        z=y.GetPoints()
-        ring1.AddPoint(z[0][0], z[0][1])
-        poly1.AddGeometry(ring1)
-        multipolygon.AddGeometry(poly1)
+        if(flag == 0 or flag == 2):
+            x=wall_layer.GetFeature(i)
+            y=x.GetGeometryRef()
+            z=y.GetPoints()
+            ring1.AddPoint(z[0][0], z[0][1])
+            poly1.AddGeometry(ring1)
+            multipolygon.AddGeometry(poly1)
 
     print multipolygon.ExportToWkt()
     outFeature.SetGeometry(multipolygon)
