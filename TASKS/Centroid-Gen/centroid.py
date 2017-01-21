@@ -8,7 +8,8 @@ def main():
             print "Usage: python ExtractLine.py Filename"
             inShapefile = "1roomr.shp"
             # file to use if user doesnot provide input file
-        FileName = argument[1]
+        else:
+        inShapefile = argument[1]
     # Get the input Layer
 
     inDriver = ogr.GetDriverByName("ESRI Shapefile")
