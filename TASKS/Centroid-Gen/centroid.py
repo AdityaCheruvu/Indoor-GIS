@@ -4,11 +4,11 @@ import sys
 
 def main():
     argument = sys.argv
-        if not (len(argument)==2) :
-            print "Usage: python ExtractLine.py Filename"
-            inShapefile = "1roomr.shp"
-            # file to use if user doesnot provide input file
-        else:
+    if not (len(argument)==2) :
+        print "Usage: python ExtractLine.py Filename"
+        inShapefile = "1roomr.shp"
+        # file to use if user doesnot provide input file
+    else:
         inShapefile = argument[1]
     # Get the input Layer
 

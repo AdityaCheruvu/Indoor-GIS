@@ -1,19 +1,16 @@
 from osgeo import ogr
-import os
-import sys
-
-
-    
+import os, sys
 
 # Get the input Layer
 def main_code():
     argument = sys.argv
-        if not (len(argument)==2) :
-            print "Usage: python ExtractLine.py Filename"
-            inShapefile = "1roomr.shp"
-            # file to use if user doesnot provide input file
-        else:
+    if not (len(argument)==2) :
+        print "Usage: python ExtractLine.py Filename"
+        inShapefile = "1roomr.shp"
+        # file to use if user doesnot provide input file
+    else:
         inShapefile = argument[1]
+    # Get the input Layer
     inDriver = ogr.GetDriverByName("ESRI Shapefile")
     inDataSource = inDriver.Open(inShapefile, 0)
     inLayer = inDataSource.GetLayer()
@@ -40,6 +37,10 @@ def main_code():
         fieldDefn = inLayerDefn.GetFieldDefn(i)
         outLayer.CreateField(fieldDefn)
         outLayer2.CreateField(fieldDefn)
+    idField = ogr.FieldDefn("ID", ogr.OFTInteger)
+    outLayer.CreateField(idField)
+    idField = ogr.FieldDefn("Type1", ogr.OFTString)
+    outLayer.CreateField(idField)
     idField = ogr.FieldDefn("Type", ogr.OFTString)
     outLayer2.CreateField(idField)
     idField = ogr.FieldDefn("Openings", ogr.OFTString)
@@ -64,12 +65,13 @@ def main_code():
         # Add field values from input Layer
         geo=inFeature.GetGeometryRef()
         points=geo.GetPoints()
-
         geom.append(points[0])
         geom.append(points[1])
         outFeature.SetGeometry(geo)
+        outFeature.SetField("ID", i)
         outLayer.CreateFeature(outFeature)
 
+    noOfDoors=0
     for i in range(0, 2*no):
         for j in range(i+1, 2*no):
             if geom[i]==geom[j]:
@@ -95,13 +97,19 @@ def main_code():
                # outFeature.SetGeometry(pg2)
                # outLayer.CreateFeature(outFeature)
                 outFeature.SetGeometry(line)
+                print "door"
+                noOfDoors+=1
+                print line
+                outFeature.SetField("Type1", "door")
+                outFeature.SetField("ID", no+noOfDoors)
                 outLayer.CreateFeature(outFeature)
                 outFeature2.SetGeometry(center)
-                outLayer2.CreateFeature(outFeature2)
                 outFeature2.SetField("Type", "door")
                 outFeature2.SetField("Openings","Door-opening")
                 outFeature2.SetField("Capacity", 30)
                 outFeature2.SetField("Cost", 34.5)
+                outLayer2.CreateFeature(outFeature2)
+
             else:
                 print "nothing"
 
