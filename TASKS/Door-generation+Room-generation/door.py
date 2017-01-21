@@ -1,9 +1,19 @@
 from osgeo import ogr
 import os
+import sys
+
+
+    
 
 # Get the input Layer
 def main_code():
-    inShapefile = "1roomr.shp"
+    argument = sys.argv
+        if not (len(argument)==2) :
+            print "Usage: python ExtractLine.py Filename"
+            inShapefile = "1roomr.shp"
+            # file to use if user doesnot provide input file
+        else:
+        inShapefile = argument[1]
     inDriver = ogr.GetDriverByName("ESRI Shapefile")
     inDataSource = inDriver.Open(inShapefile, 0)
     inLayer = inDataSource.GetLayer()
