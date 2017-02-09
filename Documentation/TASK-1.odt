@@ -1,0 +1,13 @@
+Task - 1
+
+Goal: Given a blueprint of any building or room the text present in it must be detected and the location of the text must be found out.
+
+Implementation:
+The diagonal two vertices of the rectangular box that bounds the test must be  given as output
+
+Procedure:
+Using Pytesser the text identification from the image will be done.
+For the boudary values the scene text detection feature of OpenCV will be used.
+
+Estimated Time Of Completion:
+The task will be completed by 11th - 12th dec.'16
