@@ -2,19 +2,31 @@ import ezdxf
 import sys
 def main():
     argument = sys.argv
-    FileName="VindhyaModelization.dxf"
     #default filename if nothing else is mentioned
     if not (len(argument)==2) :
         print "Usage: python ExtractLine.py Filename"
-        sys.exit()
-    FileName = argument[1]
+        FileName = "VindhyaModelization.dxf"
+    else:
+        FileName = argument[1]
     dwg = ezdxf.readfile(FileName)
     modelspace = dwg.modelspace()
+    for w in modelspace:
+        print w.dxftype()
+        print w
     arcs = modelspace.query('ARC')
+    lines = modelspace.query('LINE')
     for a in arcs:
-        print "door detected"
+        for l in lines:
+            s=l.dxf.start;
+            e=l.dxf.end;
+            c=a.center;
+            r=a.radius;
+            if(s==c or e==c ) and abs(s-e)==r: #if the detected line has one of its endpoints as one of the arc endpoints and
+                                                #its length matches the radius of the arc, then the arc is a part of a door
+                print "door detected"
+                break
+        #for debugging
         print a.center
-        #prints center of the arc
         print a.radius
         print a.start_angle
         print a.end_angle
