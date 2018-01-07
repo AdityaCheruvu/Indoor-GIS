@@ -1,4 +1,5 @@
 # Background
+
 Building architectural plans are available as .dxf file , generally genrated in
 AutoCad. To do any computation , first the data needs to extracted from the file,
 made sense of . The first challenge is to extract information about walls.
