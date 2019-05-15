@@ -75,14 +75,34 @@ if __name__ == "__main__":
             parallelLineSets[line.slope].append(line)
         except:
             parallelLineSets[line.slope] = [line]
+    slopes = list(parallelLineSets.keys())
+    slopes.sort()
+    delList = []
+    for i in range(1, len(parallelLineSets.keys())):
+        try:
+            if(abs(slopes[i] - slopes[i-1]) < EPS):
+                a = len(parallelLineSets[slopes[i]])
+                b = len(parallelLineSets[slopes[i-1]])
+                parallelLineSets[(a*slopes[i] + b*slopes[i-1])/(a+b)] = parallelLineSets[slopes[i]] + parallelLineSets[slopes[i-1]]
+                delList.append(slopes[i])
+                delList.append(slopes[i-1])
+        except:
+            pass
+    print(parallelLineSets.keys())
+    for i in delList:
+        del parallelLineSets[i]
+    
+    for slope, lines in parallelLineSets.items():
+        for line in lines:
+            print(str(line) + "has slope " + str(slope))
 
-    for slope1 in parallelLineSets.keys():
+    """for slope1 in parallelLineSets.keys():
         for slope2 in parallelLineSets.keys():
-            if(areLineSetsParallel(list(parallelLineSets[slope1]), list(parallelLineSets[slope1])):
+            if(areLineSetsParallel(list(parallelLineSets[slope1]), list(parallelLineSets[slope1])):"""
                 
-    for k in parallelLineSets.keys():
+    """for k in parallelLineSets.keys():
         if len(parallelLineSets[k]) <=1:
-            del parallelLineSets[k]
+            del parallelLineSets[k]"""
     #for k, v in parallelLineSets.iteritems():
         #print("Slope: " + str(k))
         #for line in v:
@@ -120,6 +140,9 @@ if __name__ == "__main__":
     #print(setsOfProperEndingParallelLines)
     """----------------------------------------"""
     lines = []
+    for k in setsOfProperEndingParallelLines.keys():
+        if(len(setsOfProperEndingParallelLines[k]) <= 2):
+            setsOfProperEndingParallelLines[k] = [] 
     for i in setsOfProperEndingParallelLines.keys():
         lines+=list(setsOfProperEndingParallelLines[i])
     print(lines, len(lines))
