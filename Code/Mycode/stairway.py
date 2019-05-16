@@ -12,7 +12,8 @@ import pprint
 #Parameters
 minStairSize = 0
 maxStairSize = 3
-
+EPSProperParallel = 0.00000001
+MinCountOfStairs = 1
 #-----------------------------------------
 
 #-----------------------------------------
@@ -35,12 +36,12 @@ def getPerpendicularLineEqs(slope, endpoint1, endpoint2):
     
 def areEndPointsOnLineEqs(m, c1, c2, endpoint1, endpoint2):
     if(m == Inf):
-        if((c1 - endpoint1.x)<=EPS and (c2 - endpoint2.x)<=EPS):
+        if((c1 - endpoint1.x)<=EPSProperParallel and (c2 - endpoint2.x)<=EPSProperParallel):
             return True
         else:
             return False
     else:
-        if(abs(endpoint1.y - m*endpoint1.x - c1) <= EPS and abs(endpoint2.y - m*endpoint2.x - c2) <= EPS):
+        if(abs(endpoint1.y - m*endpoint1.x - c1) <= EPSProperParallel and abs(endpoint2.y - m*endpoint2.x - c2) <= EPSProperParallel):
             return True
         else:
             return False
@@ -135,5 +136,82 @@ if __name__ == "__main__":
         #print("Slope: " + str(k))
         MakeShapeFile(v, str(k)+".shp")"""
     
+    setsOfProperEndingParallelLines = {}
+    for k in parallelLineSets.keys():
+        currSet = parallelLineSets[k]
+        i = 0
+        newLine=True
+        while(len(currSet)>0):
+            currLine = currSet[i]
+            if(newLine): #first, not i
+                m, c1, c2 = getPerpendicularLineEqs(currLine.slope, currLine.a, currLine.b)
+                try:
+                    setsOfProperEndingParallelLines[(m, c1, c2)].append(currLine)
+                except:
+                    setsOfProperEndingParallelLines[(m, c1, c2)] = [currLine]
+                currSet.remove(currLine)
+                newLine = False
+            else:
+                if(areEndPointsOnLineEqs(m, c1, c2, currLine.a, currLine.b)):
+                    setsOfProperEndingParallelLines[(m, c1, c2)].append(currLine)
+                    currSet.remove(currLine)
+                else:
+                    i+=1
+            if(i >= len(currSet)):
+                newLine = True
+                i=0
+    
+    
+    lines = []
+    
+    for k in setsOfProperEndingParallelLines.keys():
+        if(len(setsOfProperEndingParallelLines[k]) <= MinCountOfStairs):
+            del setsOfProperEndingParallelLines[k]
+    for i in setsOfProperEndingParallelLines.keys():
+        lines+=list(setsOfProperEndingParallelLines[i])
+    #print(lines, len(lines))
+    MakeShapeFile(lines, "trial.shp")
+
+    """for k, v in setsOfProperEndingParallelLines.items():
+        print("---------------------")
+        print(k)
+        print
+        print(v)
+
+        print(len(v))
+    print(len(setsOfProperEndingParallelLines))"""
+
+    #setsOfProperEndingParallelLines = {}
+    listOfStaircases = []
+    for k in setsOfProperEndingParallelLines.keys():
+        #print(listOfStaircases)
+        #print
+        if(len(setsOfProperEndingParallelLines[k]) <= 1):
+            del setsOfProperEndingParallelLines[k]
+        else:
+            setsOfProperEndingParallelLines[k].sort(key=keyToSortLines)
+            print(setsOfProperEndingParallelLines[k])
+            perpDistances = []
+            for i in range(len(setsOfProperEndingParallelLines[k])-1):
+                line1 = setsOfProperEndingParallelLines[k][i]
+                line2 = setsOfProperEndingParallelLines[k][i+1]
+                perpDistances.append(isStairSize(line1.prependiculardistance(line2)))
+            tmp = [setsOfProperEndingParallelLines[k][0]]
+            for i in range(1, len(setsOfProperEndingParallelLines[k])-1):
+                if(perpDistances[i] == True):
+                    tmp.append(setsOfProperEndingParallelLines[k][i])
+                else:
+                    #print(tmp)
+                    if(len(tmp) > 2):
+                        print("hi")
+                        listOfStaircases = listOfStaircases + tmp[:]
+                    tmp = []
+    #print(listOfStaircases)
+    linesOfStairs = []
+    #print(setsOfProperEndingParallelLines)
+    for l in listOfStaircases:
+        linesOfStairs+=l
+    pprint.pprint(listOfStaircases)
+    #MakeShapeFile(linesOfStairs, "staircases.shp")
 
     
