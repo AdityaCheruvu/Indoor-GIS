@@ -10,10 +10,10 @@ import pprint
 
 #-----------------------------------------
 #Parameters
-minStairSize = 0
-maxStairSize = 3
+minStairSize = 250
+maxStairSize = 400
 EPSProperParallel = 0.00000001
-MinCountOfStairs = 1
+MinCountOfStairs = 2
 #-----------------------------------------
 
 #-----------------------------------------
@@ -21,11 +21,28 @@ MinCountOfStairs = 1
 #Utility Functions
 
 def getPerpendicularLineEqs(slope, endpoint1, endpoint2):
+    """
+    Finds a pair of perpendicular lines to the given slope at the given endpoints
+    
+    slope: slope of the given line
+    endpoint1: 1st endpoint of the given line
+    endpoint2: 2nd endpoint of the given line
+
+    """
     if(slope == 0 or slope <= RadianEPS): #can i take it like this?
+        """
+        If slope of given line is 0 or very small, then the target slope
+        of perpendicular line is Infinity, and constant is the corresponding x coordinate.
+        """
         slope = Inf 
         constant1 = endpoint1.x
         constant2 = endpoint2.x
     else:
+        """
+        If slope is Infinity, then target slope is 0.
+        else it is -1/slope.
+        The constant can be calculated using c = y-mx
+        """
         if(slope == Inf):
             slope = 0
         else:
@@ -35,18 +52,34 @@ def getPerpendicularLineEqs(slope, endpoint1, endpoint2):
     return (slope, constant1, constant2)
     
 def areEndPointsOnLineEqs(m, c1, c2, endpoint1, endpoint2):
+    """
+    Checks if endpoint1 and endpoint2 are on lines y = mx + c1 and y=mx+c2 respectively
+    m: slope of given lines.
+    c1, c2: constants of each of the line equations.
+    endpoint1, endpoint2: points of lines which are being tested.
+    """
     if(m == Inf):
+        """
+        If slope is Infinity, then the equation is satisfied if c-x = 0
+        """
         if((c1 - endpoint1.x)<=EPSProperParallel and (c2 - endpoint2.x)<=EPSProperParallel):
             return True
         else:
             return False
     else:
+        """
+        If slope is any other number, the equation is satisfied if y-mx-c=0
+        """
         if(abs(endpoint1.y - m*endpoint1.x - c1) <= EPSProperParallel and abs(endpoint2.y - m*endpoint2.x - c2) <= EPSProperParallel):
             return True
         else:
             return False
 
 def keyToSortLines(line):
+    """
+    key function to sort list of parallel lines, vertically or horizontally
+    based on the orientation of parallel lines.
+    """
     if abs(line.a.x - line.b.x) <= EPS:
         return line.a.x
     elif abs(line.a.y - line.b.y) <= EPS:
@@ -54,12 +87,19 @@ def keyToSortLines(line):
     return line.a.x
     
 def isStairSize(size):
+    """
+    Function to apply threshold on width of a step.
+    """
     if(size >= minStairSize and size <= maxStairSize):
         return True
     else:
         return False
 
 def areLineSetsParallel(angle1, angle2):
+    """
+    Function to determine if 2 line sets can be considered parallel.
+    angle1, angle2: degree of rotation in radians of 2 parallel line sets.
+    """
     if(angle1 == None or angle2 == None):
         return True
     diff = abs(angle1 - angle2)
@@ -69,8 +109,13 @@ def areLineSetsParallel(angle1, angle2):
         return True
     return False
 
-def findGroupsOfAngles(allAnglesList, allAngles):
-    #Add weighted average still
+def findGroupsOfAngles(allAnglesList, allAnglesCount):
+    """
+    groups different angles of lines found in the drawing, if they can be considered parallel.
+    
+    allAnglesList: List of all angles of lines without repitition.
+    allAnglesCount: Dictionary of all angles mapped to respective count of lines with those angles.
+    """
     i=0
     groupsOfAngles = []
     group = [[None, 0],[]] #[[avg, weight], [angleList]]
@@ -97,6 +142,8 @@ def findGroupsOfAngles(allAnglesList, allAngles):
 #-----------------------------------------
 
 if __name__ == "__main__":
+
+    # Recieve file name of the dxf file, read lines from it and make segments
     arg = sys.argv
     if not (len(arg)==2) :
         print "Usage: python ExtractStaircases.py Filename"
@@ -106,6 +153,7 @@ if __name__ == "__main__":
     modelspace = dwg.modelspace()
     LineSegmentsFromDwg = [Segment(Point(*line.dxf.start[:-1]), Point(*line.dxf.end[:-1])) for line in modelspace.query('LINE')]
     #MakeShapeFile(LineSegmentsFromDwg, "allLines.shp")
+    #Develop a Dictionary mapping from angle to count of the number of lines with the angle of rotation
     allAnglesCount = {}
     for line in LineSegmentsFromDwg:
         try:
@@ -114,21 +162,27 @@ if __name__ == "__main__":
             allAnglesCount[line.angle] = 1
     #pprint.pprint(parallelLineSets)
     #print(allAngles)
+    #create a sorted list of all angles from the drawing
     allAnglesList = sorted(list(allAnglesCount.keys()))
+    #group the angles in order to group almost parallel lines
     groupsOfAngles = findGroupsOfAngles(allAnglesList, allAnglesCount)
+    #Develop a dictionary of angles to list of lines from the model space of that angle
     angleToLineMap = {}
     for line in LineSegmentsFromDwg:
         try:
             angleToLineMap[line.angle].append(line)
         except:
             angleToLineMap[line.angle] = [line]
+    #Create groups of lines out of the angle groups
     parallelLineSets = {}
     for group in groupsOfAngles:
         parallelLineSets[group[0][0]] = []
         for angle in group[1]:
             parallelLineSets[group[0][0]]+=angleToLineMap[angle]
     
-    """for k, v in parallelLineSets.items():
+    """
+    Code for debugging purpose
+    for k, v in parallelLineSets.items():
         print(k, v)
         print(len(v))
     print(len(LineSegmentsFromDwg))"""
@@ -136,8 +190,12 @@ if __name__ == "__main__":
         #print("Slope: " + str(k))
         MakeShapeFile(v, str(k)+".shp")"""
     
+    #Find set of parallel lines having the similar end points relatively
     setsOfProperEndingParallelLines = {}
     for k in parallelLineSets.keys():
+        #for every set of parallel lines, construct a pair of perpendicular line equations
+        #from the endpoints of a line in the set and add all lines which have endpoints satisfying
+        #the perpendicular line equations into a set.
         currSet = parallelLineSets[k]
         i = 0
         newLine=True
@@ -162,15 +220,15 @@ if __name__ == "__main__":
                 i=0
     
     
-    lines = []
-    
+    #lines = []
+    #Remove the sets with lesser lines than MinCountOfStairs
     for k in setsOfProperEndingParallelLines.keys():
         if(len(setsOfProperEndingParallelLines[k]) <= MinCountOfStairs):
             del setsOfProperEndingParallelLines[k]
-    for i in setsOfProperEndingParallelLines.keys():
+    """for i in setsOfProperEndingParallelLines.keys():
         lines+=list(setsOfProperEndingParallelLines[i])
     #print(lines, len(lines))
-    MakeShapeFile(lines, "trial.shp")
+    MakeShapeFile(lines, "trial.shp")"""
 
     """for k, v in setsOfProperEndingParallelLines.items():
         print("---------------------")
@@ -182,6 +240,8 @@ if __name__ == "__main__":
     print(len(setsOfProperEndingParallelLines))"""
 
     #setsOfProperEndingParallelLines = {}
+    #Sort each list of lines, find distances between adjacent lines, and split the lists
+    #down whenever the distance is out of the threshold.
     listOfStaircases = []
     for k in setsOfProperEndingParallelLines.keys():
         #print(listOfStaircases)
@@ -189,29 +249,45 @@ if __name__ == "__main__":
         if(len(setsOfProperEndingParallelLines[k]) <= 1):
             del setsOfProperEndingParallelLines[k]
         else:
+            """for i in setsOfProperEndingParallelLines[k]:
+                print(i, (float(i.a.x), float(i.a.y)), (float(i.b.x), float(i.b.y)))"""
             setsOfProperEndingParallelLines[k].sort(key=keyToSortLines)
-            print(setsOfProperEndingParallelLines[k])
+            """print
+            print("-----------------------------------------------")
+            print("-----------------------------------------------")
+            print
+            for i in setsOfProperEndingParallelLines[k]:
+                print(i, (float(i.a.x), float(i.a.y)), (float(i.b.x), float(i.b.y)))
+            #print(setsOfProperEndingParallelLines[k])"""
             perpDistances = []
             for i in range(len(setsOfProperEndingParallelLines[k])-1):
                 line1 = setsOfProperEndingParallelLines[k][i]
                 line2 = setsOfProperEndingParallelLines[k][i+1]
                 perpDistances.append(isStairSize(line1.prependiculardistance(line2)))
+            print(perpDistances)
             tmp = [setsOfProperEndingParallelLines[k][0]]
-            for i in range(1, len(setsOfProperEndingParallelLines[k])-1):
+            for i in range(0, len(setsOfProperEndingParallelLines[k])-1):
                 if(perpDistances[i] == True):
-                    tmp.append(setsOfProperEndingParallelLines[k][i])
+                    tmp.append(setsOfProperEndingParallelLines[k][i+1])
                 else:
                     #print(tmp)
-                    if(len(tmp) > 2):
-                        print("hi")
-                        listOfStaircases = listOfStaircases + tmp[:]
-                    tmp = []
+                    if(len(tmp) > MinCountOfStairs):
+                        #print("hi")
+                        #print(tmp, len(tmp))
+                        listOfStaircases.append(tmp)
+                    tmp = [setsOfProperEndingParallelLines[k][i+1]]
+            listOfStaircases.append(tmp)
+            #print(listOfStaircases, len(listOfStaircases), len(listOfStaircases[0]), len(listOfStaircases[1]))
     #print(listOfStaircases)
     linesOfStairs = []
     #print(setsOfProperEndingParallelLines)
-    for l in listOfStaircases:
-        linesOfStairs+=l
-    pprint.pprint(listOfStaircases)
+    #for l in listOfStaircases:
+    #    pprint.pprint(l)
+    #pprint.pprint(listOfStaircases)
     #MakeShapeFile(linesOfStairs, "staircases.shp")
+
+    #listOfStaircases contains all the sets of stairs identified.
+    for i in range(len(listOfStaircases)):
+        MakeShapeFile(listOfStaircases[i], "stairsNo"+str(i)+".shp")
 
     
