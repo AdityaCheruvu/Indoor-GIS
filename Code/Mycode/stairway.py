@@ -13,9 +13,34 @@ import pprint
 minStairSize = 250
 maxStairSize = 400
 EPSProperParallel = 0.00000001
-MinCountOfStairs = 2
+MinCountOfStairs = 3
+#minStepLength = 
+#maxStepLength = 
 #-----------------------------------------
 
+class setOFSteps():
+    def __init__(self, listOfLines):
+        self.listOfLines = listOfLines
+        self.no_of_steps = len(listOfLines)-1
+        self.bounding_rect = (listOfLines[0].a, listOfLines[0].b, listOfLines[-1].a, listOfLines[-1].b)
+        line1,line2 = listOfLines[0], listOfLines[1]
+        centroid1 = ((line1.a.x+line1.b.x)/2, (line1.a.y+line1.b.y)/2)
+        centroid2 = ((line2.a.x+line2.b.x)/2, (line2.a.y+line2.b.y)/2)
+        self.lineCentroids = (centroid1, centroid2)
+        self.centroid = ((centroid1[0]+centroid2[0])/2, (centroid1[1]+centroid2[1])/2)
+
+    def getNoOfSteps():
+        return self.no_of_steps
+    
+    def getListOfLines():
+        return self.listOfLines
+    
+    def getBoundingBox():
+        return self.bounding_rect
+
+class midLanding():
+    def __init__(self):
+        pass
 #-----------------------------------------
 
 #Utility Functions
@@ -152,6 +177,14 @@ if __name__ == "__main__":
     dwg = ezdxf.readfile(inputFile)
     modelspace = dwg.modelspace()
     LineSegmentsFromDwg = [Segment(Point(*line.dxf.start[:-1]), Point(*line.dxf.end[:-1])) for line in modelspace.query('LINE')]
+    """
+    i=0
+    while(i<len(LineSegmentsFromDwg)):
+        if(LineSegmentsFromDwg[i].length > maxStepLength or LineSegmentsFromDwg[i].length < minStepLength):
+            del LineSegmentsFromDwg[i]
+        else:
+            i+=1
+    """
     #MakeShapeFile(LineSegmentsFromDwg, "allLines.shp")
     #Develop a Dictionary mapping from angle to count of the number of lines with the angle of rotation
     allAnglesCount = {}
@@ -288,6 +321,8 @@ if __name__ == "__main__":
 
     #listOfStaircases contains all the sets of stairs identified.
     for i in range(len(listOfStaircases)):
-        MakeShapeFile(listOfStaircases[i], "stairsNo"+str(i)+".shp")
+        listOfStaircases[i] = setOFSteps(listOfStaircases[i])
 
+        #MakeShapeFile(listOfStaircases[i], "stairsNo"+str(i)+".shp")
+    
     
