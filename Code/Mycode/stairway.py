@@ -31,16 +31,16 @@ class setOFSteps():
         self.avgAngleOfRotation = sum([line.angle for line in listOfLines])/len(listOfLines)
         self.stepLength = self.listOfLines[0].length
 
-    def getNoOfSteps():
+    def getNoOfSteps(self):
         return self.no_of_steps
     
-    def getListOfLines():
+    def getListOfLines(self):
         return self.listOfLines
     
-    def getBoundingBox():
+    def getBoundingBox(self):
         return self.bounding_rect
 
-    def isConnectedWithSet(setA):
+    def isConnectedWithSet(self, setA):
         if(not areLineSetsParallel(self.avgAngleOfRotation, setA.avgAngleOfRotation)):
             return False
         
@@ -50,7 +50,7 @@ class setOFSteps():
         else:
             line2 = self.listOfLines[0]
             line1 = setA.listOfLines[0]
-        if(abs(line1.projection(line2) - line1.length) > EPS):
+        if(abs(line1.projection(line2).length - line1.length) > EPS):
             return False
 
         linea1 = self.listOfLines[0]
@@ -61,9 +61,10 @@ class setOFSteps():
             return (True, 'ba') #True, and order of setOfSteps alignment
         elif(isStairSize(lineb1.prependiculardistance(linea2))):
             return (True, 'ab')
+        return False
         
     #Before calling this function, make sure you use the same object as u used to call isConnectedWithSet
-    def connectSetOfSteps(setA, alignment):
+    def connectSetOfSteps(self, setA, alignment):
         
         self.stepLength = (self.stepLength * self.no_of_steps + setA.stepLength*setA.no_of_steps)/(self.no_of_steps + setA.no_of_steps)
         self.no_of_steps = self.no_of_steps + setA.no_of_steps
@@ -79,6 +80,12 @@ class setOFSteps():
         centroid2 = ((line2.a.x+line2.b.x)/2, (line2.a.y+line2.b.y)/2)
         self.lineCentroids = (centroid1, centroid2)
         self.centroid = ((centroid1[0]+centroid2[0])/2, (centroid1[1]+centroid2[1])/2)
+
+    def mkShapeFileOfSet(self):
+        MakeShapeFile(self.listOfLines, "steps.shp")
+    
+    def __str__(self):
+        return str(self.listOfLines)
 
 class midLanding():
     def __init__(self):
@@ -212,8 +219,8 @@ if __name__ == "__main__":
 
     # Recieve file name of the dxf file, read lines from it and make segments
     arg = sys.argv
-    if not (len(arg)==2) :
-        print "Usage: python ExtractStaircases.py Filename"
+    if not (len(arg)==2):
+        print("Usage: python ExtractStaircases.py Filename")
         sys.exit()
     inputFile = arg[1]
     dwg = ezdxf.readfile(inputFile)
@@ -380,10 +387,13 @@ if __name__ == "__main__":
         j=i+1
         while(j<len(listOfStaircases)):
             isConnected = listOfStaircases[i].isConnectedWithSet(listOfStaircases[j])
+            print(isConnected)
             if(isConnected!=False):
                 listOfStaircases[i].connectSetOfSteps(listOfStaircases[j], isConnected[1])
                 listOfStaircases.pop(j)
             else:
                 j+=1
         i+=1            
-
+    print(listOfStaircases[0].listOfLines, len(listOfStaircases[0].listOfLines))
+    print
+    print(listOfStaircases[1].listOfLines, len(listOfStaircases[1].listOfLines))
