@@ -28,6 +28,8 @@ class setOFSteps():
         centroid2 = ((line2.a.x+line2.b.x)/2, (line2.a.y+line2.b.y)/2)
         self.lineCentroids = (centroid1, centroid2)
         self.centroid = ((centroid1[0]+centroid2[0])/2, (centroid1[1]+centroid2[1])/2)
+        self.avgAngleOfRotation = sum([line.angle for line in listOfLines])/len(listOfLines)
+        self.stepLength = self.listOfLines[0].length
 
     def getNoOfSteps():
         return self.no_of_steps
@@ -37,6 +39,46 @@ class setOFSteps():
     
     def getBoundingBox():
         return self.bounding_rect
+
+    def isConnectedWithSet(setA):
+        if(not areLineSetsParallel(self.avgAngleOfRotation, setA.avgAngleOfRotation)):
+            return False
+        
+        if(self.listOfLines[0].length < setA.listOfLines[0].length):
+            line1 = self.listOfLines[0]
+            line2 = setA.listOfLines[0]
+        else:
+            line2 = self.listOfLines[0]
+            line1 = setA.listOfLines[0]
+        if(abs(line1.projection(line2) - line1.length) > EPS):
+            return False
+
+        linea1 = self.listOfLines[0]
+        lineb1 = setA.listOfLines[0]
+        linea2 = self.listOfLines[-1]
+        lineb2 = setA.listOfLines[-1]
+        if(isStairSize(linea1.prependiculardistance(lineb2))):
+            return (True, 'ba') #True, and order of setOfSteps alignment
+        elif(isStairSize(lineb1.prependiculardistance(linea2))):
+            return (True, 'ab')
+        
+    #Before calling this function, make sure you use the same object as u used to call isConnectedWithSet
+    def connectSetOfSteps(setA, alignment):
+        
+        self.stepLength = (self.stepLength * self.no_of_steps + setA.stepLength*setA.no_of_steps)/(self.no_of_steps + setA.no_of_steps)
+        self.no_of_steps = self.no_of_steps + setA.no_of_steps
+        self.avgAngleOfRotation = (self.avgAngleOfRotation * self.no_of_steps + setA.avgAngleOfRotation * setA.no_of_steps)/(self.no_of_steps + setA.no_of_steps)
+
+        if(alignment=="ab"):
+            self.listOfLines = self.listOfLines + setA.listOfLines
+        elif(alignment=="ba"):
+            self.listOfLines = setA.listOfLines + self.listOfLines
+        self.bounding_rect = (listOfLines[0].a, listOfLines[0].b, listOfLines[-1].a, listOfLines[-1].b)
+        line1,line2 = listOfLines[0], listOfLines[-1]
+        centroid1 = ((line1.a.x+line1.b.x)/2, (line1.a.y+line1.b.y)/2)
+        centroid2 = ((line2.a.x+line2.b.x)/2, (line2.a.y+line2.b.y)/2)
+        self.lineCentroids = (centroid1, centroid2)
+        self.centroid = ((centroid1[0]+centroid2[0])/2, (centroid1[1]+centroid2[1])/2)
 
 class midLanding():
     def __init__(self):
@@ -229,7 +271,7 @@ if __name__ == "__main__":
         #for every set of parallel lines, construct a pair of perpendicular line equations
         #from the endpoints of a line in the set and add all lines which have endpoints satisfying
         #the perpendicular line equations into a set.
-        currSet = parallelLineSets[k]
+        currSet = parallelLineSets[k][:]
         i = 0
         newLine=True
         while(len(currSet)>0):
@@ -320,9 +362,28 @@ if __name__ == "__main__":
     #MakeShapeFile(linesOfStairs, "staircases.shp")
 
     #listOfStaircases contains all the sets of stairs identified.
+
+    for k in parallelLineSets.keys():
+        for i in range(len(listOfStaircases)): 
+            parallelLineSets[k] = list(set(parallelLineSets[k])-set(listOfStaircases[i]))
+
     for i in range(len(listOfStaircases)):
         listOfStaircases[i] = setOFSteps(listOfStaircases[i])
-
+        
+        
         #MakeShapeFile(listOfStaircases[i], "stairsNo"+str(i)+".shp")
     
-    
+    #Club all the continuois sets of stairs
+    i=0
+    j=1
+    while(i<len(listOfStaircases)-1):
+        j=i+1
+        while(j<len(listOfStaircases)):
+            isConnected = listOfStaircases[i].isConnectedWithSet(listOfStaircases[j])
+            if(isConnected!=False):
+                listOfStaircases[i].connectSetOfSteps(listOfStaircases[j], isConnected[1])
+                listOfStaircases.pop(j)
+            else:
+                j+=1
+        i+=1            
+
