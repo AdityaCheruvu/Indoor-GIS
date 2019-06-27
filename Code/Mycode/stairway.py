@@ -23,13 +23,14 @@ class setOFSteps():
         self.listOfLines = listOfLines
         self.no_of_steps = len(listOfLines)-1
         self.bounding_rect = (listOfLines[0].a, listOfLines[0].b, listOfLines[-1].a, listOfLines[-1].b)
-        line1,line2 = listOfLines[0], listOfLines[1]
-        centroid1 = ((line1.a.x+line1.b.x)/2, (line1.a.y+line1.b.y)/2)
-        centroid2 = ((line2.a.x+line2.b.x)/2, (line2.a.y+line2.b.y)/2)
+        line1,line2 = listOfLines[0], listOfLines[-1]
+        centroid1 = line1.a.midpoint(line1.b)
+        centroid2 = line2.a.midpoint(line2.b)
         self.lineCentroids = (centroid1, centroid2)
-        self.centroid = ((centroid1[0]+centroid2[0])/2, (centroid1[1]+centroid2[1])/2)
+        self.centroid = centroid1.midpoint(centroid2)
         self.avgAngleOfRotation = sum([line.angle for line in listOfLines])/len(listOfLines)
         self.stepLength = self.listOfLines[0].length
+        self.runningLength = self.lineCentroids[0].distance(self.lineCentroids[1])
 
     def getNoOfSteps(self):
         return self.no_of_steps
@@ -76,16 +77,28 @@ class setOFSteps():
             self.listOfLines = setA.listOfLines + self.listOfLines
         self.bounding_rect = (listOfLines[0].a, listOfLines[0].b, listOfLines[-1].a, listOfLines[-1].b)
         line1,line2 = listOfLines[0], listOfLines[-1]
-        centroid1 = ((line1.a.x+line1.b.x)/2, (line1.a.y+line1.b.y)/2)
-        centroid2 = ((line2.a.x+line2.b.x)/2, (line2.a.y+line2.b.y)/2)
+        centroid1 = line1.a.midpoint(line1.b)
+        centroid2 = line2.a.midpoint(line2.b)
         self.lineCentroids = (centroid1, centroid2)
-        self.centroid = ((centroid1[0]+centroid2[0])/2, (centroid1[1]+centroid2[1])/2)
+        self.centroid = centroid1.midpoint(centroid2)
+        self.runningLength = self.lineCentroids[0].distance(self.lineCentroids[1])
 
     def mkShapeFileOfSet(self):
         MakeShapeFile(self.listOfLines, "steps.shp")
     
     def __str__(self):
         return str(self.listOfLines)
+
+    """def identifyMidLandings(self, searchSpace):
+        l = searchSpace.keys()
+        for angle in l:
+            if(abs(abs(angle - self.avgAngleOfRotation) - math.pi/2) <= RadianEPS):
+                perpendicularAngle = angle
+            elif(abs(angle - math.pi/2)):
+                parallelAngle = angle
+        #els = End Line Segments
+        els = (self.listOfLines[0], self.listOfLines[-1])"""
+        
 
 class midLanding():
     def __init__(self):
@@ -212,7 +225,20 @@ def findGroupsOfAngles(allAnglesList, allAnglesCount):
     #print(len(groupsOfAngles))
     return groupsOfAngles
 
-            
+def findConnectionBetweenParallelFlightsOfStairs(flight1, flight2):
+    if(flight1.bounding_rect[0].distance(flight2.bounding_rect[2]) < flight1.bounding_rect[2].distance(flight2.bounding_rect[0])):
+        flight1, flight2 = flight2, flight1
+
+    if(flight1.stepLength < flight2.stepLength):
+        line1 = Segment(flight1.bounding_rect[2], Segment(flight2.bounding_rect[0], flight2.bounding_rect[1]).projection(flight1.bounding_rect[2]))
+        line2 = Segment(flight1.bounding_rect[3], Segment(flight2.bounding_rect[0], flight2.bounding_rect[1]).projection(flight1.bounding_rect[3]))
+    else:
+        line1 = Segment(flight2.bounding_rect[0], Segment(flight1.bounding_rect[2], flight1.bounding_rect[3]).projection(flight2.bounding_rect[0]))
+        line2 = Segment(flight2.bounding_rect[1], Segment(flight1.bounding_rect[2], flight1.bounding_rect[3]).projection(flight2.bounding_rect[1]))
+    
+    return (line1, line2)
+
+
 #-----------------------------------------
 
 if __name__ == "__main__":
@@ -373,7 +399,8 @@ if __name__ == "__main__":
     for k in parallelLineSets.keys():
         for i in range(len(listOfStaircases)): 
             parallelLineSets[k] = list(set(parallelLineSets[k])-set(listOfStaircases[i]))
-
+            parallelLineSets[k].sort(key=keyToSortLines)
+    print(parallelLineSets.keys())
     for i in range(len(listOfStaircases)):
         listOfStaircases[i] = setOFSteps(listOfStaircases[i])
         
@@ -394,6 +421,24 @@ if __name__ == "__main__":
             else:
                 j+=1
         i+=1            
-    print(listOfStaircases[0].listOfLines, len(listOfStaircases[0].listOfLines))
+    """print(listOfStaircases[0].listOfLines, len(listOfStaircases[0].listOfLines))
     print
-    print(listOfStaircases[1].listOfLines, len(listOfStaircases[1].listOfLines))
+    print(listOfStaircases[1].listOfLines, len(listOfStaircases[1].listOfLines))"""
+
+    for i in range(len(listOfStaircases)):
+        for j in range(i+1, len(listOfStaircases)):
+            if(areLineSetsParallel(listOfStaircases[i].avgAngleOfRotation , listOfStaircases[j].avgAngleOfRotation)):
+                boundingBox1 = listOfStaircases[i].bounding_rect
+                boundingBox2 = listOfStaircases[j].bounding_rect
+                line1 = Segment(boundingBox1[0], boundingBox1[1])
+                line2 = Segment(boundingBox2[0], boundingBox2[1])
+                if(abs(min(line1.length, line2.length) - line1.projection(line2).length) <= EPS):
+                    ConnectingLine1, ConnectingLine2 = findConnectionBetweenParallelFlightsOfStairs(listOfStaircases[i], listOfStaircases[j])
+                    distance1 = ConnectingLine1.length
+                    distance2 = ConnectingLine2.length
+                    if(max(distance1, distance2) < min(listOfStaircases[i].runningLength, listOfStaircases[j].runningLength)):
+                        print(distance1, distance2, min(listOfStaircases[i].runningLength, listOfStaircases[j].runningLength))
+                        print("Connection Found!")
+
+                    
+                    
