@@ -437,7 +437,7 @@ if __name__ == "__main__":
                     distance1 = ConnectingLine1.length
                     distance2 = ConnectingLine2.length
                     if(max(distance1, distance2) < min(listOfStaircases[i].runningLength, listOfStaircases[j].runningLength)):
-                        print(distance1, distance2, min(listOfStaircases[i].runningLength, listOfStaircases[j].runningLength))
+                        print(distance1, distance2, listOfStaircases[i].runningLength, listOfStaircases[j].runningLength)
                         print("Connection Found!")
 
                     
