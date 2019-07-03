@@ -19,6 +19,7 @@ MinCountOfStairs = 3
 #maxStepLength = 
 #-----------------------------------------
 
+#class for a set of steps
 class setOFSteps():
     def __init__(self, listOfLines):
         self.listOfLines = listOfLines
@@ -42,6 +43,7 @@ class setOFSteps():
     def getBoundingBox(self):
         return self.bounding_rect
 
+    #To check if a set of steps can be connected with this to form a flight of steps
     def isConnectedWithSet(self, setA):
         if(not areLineSetsParallel(self.avgAngleOfRotation, setA.avgAngleOfRotation)):
             return False
@@ -100,7 +102,7 @@ class setOFSteps():
         #els = End Line Segments
         els = (self.listOfLines[0], self.listOfLines[-1])"""
         
-
+#Class for midlanding
 class midLanding():
     def __init__(self, listOfLines):
         self.listOfLines = listOfLines
@@ -239,6 +241,9 @@ def findGroupsOfAngles(allAnglesList, allAnglesCount):
     return groupsOfAngles
 
 def findConnectionBetweenParallelFlightsOfStairs(flight1, flight2):
+    """
+    flight1, flight2: flights of stairs which are parallel and directly connected by a midlanding as a straight staircase
+    """
     if(flight1.bounding_rect[0].distance(flight2.bounding_rect[2]) < flight1.bounding_rect[2].distance(flight2.bounding_rect[0])):
         flight1, flight2 = flight2, flight1
 
@@ -275,6 +280,10 @@ def areaOfTriangle(a, b, c):
     return (abs(a.x*(b.y-c.y) + b.x*(c.y-a.y) + c.x*(a.y-b.y)))/2
 
 def closeMidlanding(referenceLine, referencePoint, d):
+    """
+    Close the midlanding given one line of the midlanding, a reference point to denote the side of the 
+    line
+    """
     perpEqs = getPerpendicularLineEqs(referenceLine.slope, referenceLine.a, referenceLine.b)
     referenceLineEq = (referenceLine.slope, referenceLine.a.y - referenceLine.slope*referenceLine.a.x)
     substitutedReferenceValue = referencePoint.y - referenceLineEq[0]*referencePoint.x - referenceLineEq[1]
@@ -490,6 +499,7 @@ if __name__ == "__main__":
 
     pairs = []
     midLandings = []
+    #Identification of midlanding
     for i in range(len(listOfStaircases)):
         for j in range(i+1, len(listOfStaircases)):
             midLand = []
@@ -500,6 +510,8 @@ if __name__ == "__main__":
                 line2 = Segment(boundingBox2[0], boundingBox2[1])
                 midLandingWidth = min(listOfStaircases[i].stepLength, listOfStaircases[j].stepLength)
                 maxMidLandingLength = min(listOfStaircases[i].runningLength, listOfStaircases[j].runningLength)
+                
+                #Case 1
                 if(abs(min(line1.length, line2.length) - line1.projection(line2).length) <= EPS):
                     ConnectingLine1, ConnectingLine2, boundingLine1, boundingLine2 = findConnectionBetweenParallelFlightsOfStairs(listOfStaircases[i], listOfStaircases[j])
                     distance1 = ConnectingLine1.length
@@ -519,8 +531,13 @@ if __name__ == "__main__":
                     rightDistance = boundingBox1[1].distance(Segment(boundingBox2[0], boundingBox2[2]).projection(boundingBox1[1]))
                     upperDifference = boundingBox1[0].distance(Segment(boundingBox1[0], boundingBox1[2]).projection(boundingBox2[0]))
                     lowerDifference = boundingBox1[3].distance(Segment(boundingBox1[0], boundingBox1[2]).projection(boundingBox2[3]))
+                    
+                    #Case2
                     if(abs(listOfStaircases[i].runningLength - listOfStaircases[j].runningLenth) < maxStairSize and min(leftDistance, rightDistance)<maxStairSize and min(upperDifference, lowerDifference)<maxStairSize):
                         #--------------------------------------------------------------
+                        
+                        #configuration deals with relative orientation of boundingbox2 w.r.t boundingbox1
+                        # l = left, r = right, u = up, d = down
                         configuration = ""
                         if(leftDistance < rightDistance):
                             configuration+="l"
@@ -545,6 +562,8 @@ if __name__ == "__main__":
                             connectingLine1, connectingLine2, boundingLine2 = closeMidlanding(boundingLine1, boundingBox1[0], midLandingWidth)
                         midLand = [ConnectingLine1, ConnectingLine2, boundingLine1, boundingLine2]
                         midLand = searchLinesInSearchSpace(midLand, RemainingSearchSpace)
+                    
+                    #case 4
                     else:
                         distanceBetweenCentroids1 = listOfStaircases[i].lineCentroids[0].distance(listOfStaircases[j].lineCentroids[1])
                         distanceBetweenCentroids2 = listOfStaircases[i].lineCentroids[1].distance(listOfStaircases[j].lineCentroids[0])
@@ -569,6 +588,7 @@ if __name__ == "__main__":
                             midLand = [connectingLine1, connectingLine2, boundingLine1, boundingLine2]
                             midLand = searchLinesInSearchSpace(midLand, RemainingSearchSpace)
 
+            #case 5
             elif(areLineSetsPerpendicular(listOfStaircases[i].avgAngleOfRotation, listOfStaircases[j].avgAngleOfRotation)):
                 commonCorner = []
                 for i in range(len(boundingBox1)):
@@ -596,7 +616,7 @@ if __name__ == "__main__":
                         l1, l2, l3 = closeMidlanding(refLine, boundingBox1[(i+2)%4], linesOfCommonCorner[1].length)
                         midLand = [refLine, l1, l2, l3]
                         midLand = searchLinesInSearchSpace(midLand, RemainingSearchSpace)
-
+            #case 6
             else:
                 commonCorner = []
                 for i in range(len(boundingBox1)):
@@ -632,10 +652,13 @@ if __name__ == "__main__":
 
     print(pairs)
 
-    listToPrint = []
+    
+    """listToPrint = []
     for i in pairs[0]:
         listToPrint+=i.listOfLines
-    MakeShapeFile(listToPrint, "Staircase.shp")
+    MakeShapeFile(listToPrint, "Staircase.shp")"""
+
+    # unite attached sets of steps with midlandings as a sequence of midlandings and flights of steps
     if(len(pairs) > 1):
         i = 0
         j = 1
