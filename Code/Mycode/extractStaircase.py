@@ -563,7 +563,7 @@ if __name__ == "__main__":
                         midLand = [ConnectingLine1, ConnectingLine2, boundingLine1, boundingLine2]
                         midLand = searchLinesInSearchSpace(midLand, RemainingSearchSpace)
                     
-                    #case 4
+                    #case 3
                     else:
                         distanceBetweenCentroids1 = listOfStaircases[i].lineCentroids[0].distance(listOfStaircases[j].lineCentroids[1])
                         distanceBetweenCentroids2 = listOfStaircases[i].lineCentroids[1].distance(listOfStaircases[j].lineCentroids[0])
@@ -588,7 +588,7 @@ if __name__ == "__main__":
                             midLand = [connectingLine1, connectingLine2, boundingLine1, boundingLine2]
                             midLand = searchLinesInSearchSpace(midLand, RemainingSearchSpace)
 
-            #case 5
+            #case 4
             elif(areLineSetsPerpendicular(listOfStaircases[i].avgAngleOfRotation, listOfStaircases[j].avgAngleOfRotation)):
                 commonCorner = []
                 for i in range(len(boundingBox1)):
@@ -616,7 +616,7 @@ if __name__ == "__main__":
                         l1, l2, l3 = closeMidlanding(refLine, boundingBox1[(i+2)%4], linesOfCommonCorner[1].length)
                         midLand = [refLine, l1, l2, l3]
                         midLand = searchLinesInSearchSpace(midLand, RemainingSearchSpace)
-            #case 6
+            #case 5
             else:
                 commonCorner = []
                 for i in range(len(boundingBox1)):
